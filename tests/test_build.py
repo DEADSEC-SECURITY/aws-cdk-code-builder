@@ -33,12 +33,6 @@ def _make_file(path, content):
 
 
 class TestBuild(unittest.TestCase):
-    def tearDown(self):
-        if BUILD_PATH.exists():
-            shutil.rmtree(BUILD_PATH)
-        if CODE_PATH.exists():
-            shutil.rmtree(CODE_PATH)
-
     @staticmethod
     def default():
         if BUILD_PATH.exists():

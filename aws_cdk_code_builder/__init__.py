@@ -11,6 +11,7 @@ import os
 import shutil
 import hashlib
 from typing import Union
+from distutils import dir_util
 
 # 3rd-Party Imports
 from pathlib import Path
@@ -44,6 +45,9 @@ class Build:
         if not self._build_dir.exists():
             self._build_dir.mkdir()
 
+        if not self._project_build_dir.exists():
+            self._project_build_dir.mkdir()
+
         self._req_file = self._project_build_dir.joinpath('requirements.txt')
         self._hash_cache_dir = self._build_dir.joinpath('.hashes')
         self._project_hash_dir = self._hash_cache_dir.joinpath(project_name)
@@ -70,18 +74,23 @@ class Build:
     def _move_to_build(self):
         if self._project_build_dir.exists():
             shutil.rmtree(self._project_build_dir)
-
-        shutil.copytree(self.project_path, self._project_build_dir)
+        self._project_build_dir.mkdir()
+        dir_util.copy_tree(self.project_path.as_posix(), self._project_build_dir.as_posix())
 
     def build(self):
         old_hash = self._get_hash()
 
+        # Update code
+        dir_util.copy_tree(self.project_path.as_posix(), self._project_build_dir.as_posix())
+
+        # No hash found, create a clean build folder
         if not old_hash:
             self._move_to_build()
 
         with open(self._req_file, 'rb') as req:
             req_hash = hashlib.sha1(req.read()).hexdigest()
 
+        # Different hashes, create a clean build folder
         if req_hash != old_hash:
             self._move_to_build()
             os.system(f'pip3 install -r {self._req_file} -t {self._project_build_dir}')
