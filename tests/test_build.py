@@ -40,12 +40,30 @@ class TestBuild(unittest.TestCase):
         if CODE_PATH.exists():
             shutil.rmtree(CODE_PATH)
         CODE_PATH.mkdir()
+        CODE_PATH.joinpath('sub_folder').mkdir()
 
         _make_file(CODE_PATH.joinpath('requirements.txt'), 'popcorn-time')
         _make_file(CODE_PATH.joinpath('code.py'), 'print("Hello World")')
+        _make_file(CODE_PATH.joinpath('sub_folder').joinpath('code2.py'), 'print("HI")')
 
     def test_build(self):
         self.default()
+        package = Build(
+            project_path=CODE_PATH,
+            work_dir=CURRENT_PATH
+        ).build()
+
+        self.assertTrue(isinstance(package, lambda_.Code), 'Wrong return type for build method')
+        self.assertTrue(BUILD_PATH.exists(), 'Build directory not found')
+        self.assertTrue(HASHES_PATH.exists(), 'Hashes directory not found')
+        self.assertTrue(BUILD_CODE_PATH.exists(), 'Code build directory not found')
+        self.assertTrue(BUILD_CODE_PATH.joinpath('popcorntime').exists(), 'External libraries not installed properly')
+        self.assertTrue(HASH_CODE_PATH.exists(), 'Code hash directory not found')
+        self.assertTrue(HASH_CODE_PATH.joinpath('hash.txt').exists(), 'Code hash file not found')
+
+    def test_build_with_cache(self):
+        self.test_build()
+
         package = Build(
             project_path=CODE_PATH,
             work_dir=CURRENT_PATH

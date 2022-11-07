@@ -19,7 +19,7 @@ README = (pathlib.Path(__file__).parent / "README.md").read_text(encoding='utf8'
 setup(
     name='aws-cdk-code-builder',
     packages=find_packages(),
-    version='1.1.0',
+    version='1.1.1',
     description='A Library that extends the aws_lambda.Code.from_asset and allows for auto '
                 'packaging of the project',
     long_description=README,

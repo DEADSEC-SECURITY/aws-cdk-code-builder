@@ -20,6 +20,20 @@ from aws_cdk import aws_lambda as lambda_
 
 # Local Imports
 
+
+def recursive_copy(src, dst):
+    os.chdir(src)
+    for item in os.listdir():
+
+        if os.path.isfile(item):
+            shutil.copy(item, dst)
+
+        elif os.path.isdir(item):
+            new_dst = os.path.join(dst, item)
+            os.mkdir(new_dst)
+            recursive_copy(os.path.abspath(item), new_dst)
+
+
 class Build:
     project_path: Path
     work_dir: Path
@@ -60,41 +74,44 @@ class Build:
 
         self._hash_file = self._project_hash_dir.joinpath('hash.txt')
 
-    def _get_hash(self):
+    def _get_cached_hash(self):
         if not self._hash_file.exists():
             return False
 
         with open(self._hash_file, 'r') as file:
             return file.read()
 
+    def _get_current_hash(self):
+        with open(self._req_file, 'rb') as req:
+            req_hash = hashlib.sha1(req.read()).hexdigest()
+        return req_hash
+
     def _save_hash(self, hash_: str):
         with open(self._hash_file, 'w+') as file:
             file.write(hash_)
 
-    def _move_to_build(self):
+    def _generate_new_hash(self):
+        self._save_hash(self._get_current_hash())
+
+    def _reset_build_folder(self):
         if self._project_build_dir.exists():
             shutil.rmtree(self._project_build_dir)
         self._project_build_dir.mkdir()
-        dir_util.copy_tree(self.project_path.as_posix(), self._project_build_dir.as_posix())
+        recursive_copy(self.project_path, self._project_build_dir)
+
+    def _build(self):
+        self._reset_build_folder()
+        os.system(f'pip3 install -r {self._req_file} -t {self._project_build_dir}')
+        self._generate_new_hash()
+        return lambda_.Code.from_asset(self._project_build_dir.as_posix())
 
     def build(self):
-        old_hash = self._get_hash()
+        old_hash = self._get_cached_hash()
 
-        # Update code
-        dir_util.copy_tree(self.project_path.as_posix(), self._project_build_dir.as_posix())
-
-        # No hash found, create a clean build folder
         if not old_hash:
-            self._move_to_build()
+            return self._build()
 
-        with open(self._req_file, 'rb') as req:
-            req_hash = hashlib.sha1(req.read()).hexdigest()
-
-        # Different hashes, create a clean build folder
-        if req_hash != old_hash:
-            self._move_to_build()
-            os.system(f'pip3 install -r {self._req_file} -t {self._project_build_dir}')
-
-        self._save_hash(req_hash)
+        if self._get_current_hash() != old_hash:
+            return self._build()
 
         return lambda_.Code.from_asset(self._project_build_dir.as_posix())
