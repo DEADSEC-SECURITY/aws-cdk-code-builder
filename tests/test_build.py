@@ -24,7 +24,6 @@ HASHES_PATH = BUILD_PATH.joinpath('.hashes')
 CODE_FOLDER_NAME = 'test_code'
 CODE_PATH = CURRENT_PATH.joinpath(CODE_FOLDER_NAME)
 BUILD_CODE_PATH = BUILD_PATH.joinpath(CODE_FOLDER_NAME)
-HASH_CODE_PATH = HASHES_PATH.joinpath(CODE_FOLDER_NAME)
 
 
 def _make_file(path, content):
@@ -58,8 +57,6 @@ class TestBuild(unittest.TestCase):
         self.assertTrue(HASHES_PATH.exists(), 'Hashes directory not found')
         self.assertTrue(BUILD_CODE_PATH.exists(), 'Code build directory not found')
         self.assertTrue(BUILD_CODE_PATH.joinpath('popcorntime').exists(), 'External libraries not installed properly')
-        self.assertTrue(HASH_CODE_PATH.exists(), 'Code hash directory not found')
-        self.assertTrue(HASH_CODE_PATH.joinpath('hash.txt').exists(), 'Code hash file not found')
 
     def test_build_with_cache(self):
         self.test_build()
@@ -74,5 +71,3 @@ class TestBuild(unittest.TestCase):
         self.assertTrue(HASHES_PATH.exists(), 'Hashes directory not found')
         self.assertTrue(BUILD_CODE_PATH.exists(), 'Code build directory not found')
         self.assertTrue(BUILD_CODE_PATH.joinpath('popcorntime').exists(), 'External libraries not installed properly')
-        self.assertTrue(HASH_CODE_PATH.exists(), 'Code hash directory not found')
-        self.assertTrue(HASH_CODE_PATH.joinpath('hash.txt').exists(), 'Code hash file not found')
