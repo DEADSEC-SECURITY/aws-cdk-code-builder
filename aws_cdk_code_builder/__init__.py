@@ -10,29 +10,31 @@
 import os
 import shutil
 import hashlib
-from typing import Union
-from distutils import dir_util
+from pathlib import Path
+from typing import Union, List
 
 # 3rd-Party Imports
-from pathlib import Path
 from aws_cdk import aws_lambda as lambda_
 
 
 # Local Imports
 
 
-def recursive_copy(src, dst):
+def recursive_copy(src, dst, ignore_files: List[Path] = None, ignore_folders: List[Path] = None):
     src = Path(src).resolve()
     dst = Path(dst).resolve()
+
+    ignore_files = ignore_files if ignore_files else []
+    ignore_folders = ignore_folders if ignore_folders else []
 
     for item in os.listdir(src):
         item_src: Path = src.joinpath(item)
         item_dst: Path = dst.joinpath(item)
-        if item_src.is_file():
+        if item_src.is_file() and not any(item_src == path for path in ignore_files):
             if item_dst.exists():
                 item_dst.unlink()
             shutil.copy2(item_src, item_dst)
-        elif item_src.is_dir():
+        elif item_src.is_dir() and not any(item_dst == path for path in ignore_folders):
             if item_dst.exists():
                 shutil.rmtree(item_dst)
             item_dst.mkdir()
@@ -42,14 +44,19 @@ def recursive_copy(src, dst):
 class Build:
     project_path: Path
     work_dir: Path
+    ignore_files: List[Path]
+    ignore_folders: List[Path]
     # Internal
     _build_dir: Path
     _project_build_dir: Path
     _req_file: Path
 
-    def __init__(self, project_path: Union[str, Path], work_dir: Union[str, Path]):
+    def __init__(self, project_path: Union[str, Path], work_dir: Union[str, Path],
+                 ignore_files: List[Path] = None, ignore_folders: List[Path] = None):
         self.project_path = Path(project_path).resolve() if isinstance(project_path, str) else project_path
         self.work_dir = Path(work_dir).resolve() if isinstance(work_dir, str) else work_dir
+        self.ignore_files = ignore_files
+        self.ignore_folders = ignore_folders
 
         if not self.work_dir.is_dir():
             raise ValueError('Work dir needs to be a directory')
@@ -99,7 +106,7 @@ class Build:
         if self._project_build_dir.exists():
             shutil.rmtree(self._project_build_dir)
         self._project_build_dir.mkdir()
-        recursive_copy(self.project_path, self._project_build_dir)
+        recursive_copy(self.project_path, self._project_build_dir, self.ignore_files, self.ignore_folders)
 
     def _build(self):
         self._reset_build_folder()
@@ -113,7 +120,7 @@ class Build:
         if not old_hash:
             return self._build()
 
-        recursive_copy(self.project_path, self._project_build_dir)
+        recursive_copy(self.project_path, self._project_build_dir, self.ignore_files, self.ignore_folders)
         if self._get_current_hash() != old_hash:
             return self._build()
 

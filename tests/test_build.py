@@ -71,3 +71,39 @@ class TestBuild(unittest.TestCase):
         self.assertTrue(HASHES_PATH.exists(), 'Hashes directory not found')
         self.assertTrue(BUILD_CODE_PATH.exists(), 'Code build directory not found')
         self.assertTrue(BUILD_CODE_PATH.joinpath('popcorntime').exists(), 'External libraries not installed properly')
+
+    def test_build_with_exclude_files(self):
+        self.default()
+        _make_file(CODE_PATH.joinpath('ignore_file.txt'), 'Should be ignored')
+
+        package = Build(
+            project_path=CODE_PATH,
+            work_dir=CURRENT_PATH,
+            ignore_files=[CODE_PATH.joinpath('ignore_file.txt')]
+        ).build()
+
+        self.assertTrue(isinstance(package, lambda_.Code), 'Wrong return type for build method')
+        self.assertTrue(BUILD_PATH.exists(), 'Build directory not found')
+        self.assertTrue(HASHES_PATH.exists(), 'Hashes directory not found')
+        self.assertTrue(BUILD_CODE_PATH.exists(), 'Code build directory not found')
+        self.assertTrue(BUILD_CODE_PATH.joinpath('popcorntime').exists(),
+                        'External libraries not installed properly')
+        self.assertFalse(BUILD_CODE_PATH.joinpath('ignore_file.txt').exists(), 'File was not ignored')
+
+    def test_build_with_exclude_folders(self):
+        self.default()
+        CODE_PATH.joinpath('ignore_folder').mkdir()
+
+        package = Build(
+            project_path=CODE_PATH,
+            work_dir=CURRENT_PATH,
+            ignore_folders=[CODE_PATH.joinpath('ignore_folder')]
+        ).build()
+
+        self.assertTrue(isinstance(package, lambda_.Code), 'Wrong return type for build method')
+        self.assertTrue(BUILD_PATH.exists(), 'Build directory not found')
+        self.assertTrue(HASHES_PATH.exists(), 'Hashes directory not found')
+        self.assertTrue(BUILD_CODE_PATH.exists(), 'Code build directory not found')
+        self.assertTrue(BUILD_CODE_PATH.joinpath('popcorntime').exists(),
+                        'External libraries not installed properly')
+        self.assertFalse(BUILD_CODE_PATH.joinpath('ignore_file').exists(), 'Folder was not ignored')
