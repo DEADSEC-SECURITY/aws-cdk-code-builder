@@ -34,7 +34,7 @@ def recursive_copy(src, dst, ignore_files: List[Path] = None, ignore_folders: Li
             if item_dst.exists():
                 item_dst.unlink()
             shutil.copy2(item_src, item_dst)
-        elif item_src.is_dir() and not any(item_dst == path for path in ignore_folders):
+        elif item_src.is_dir() and not any(item_src == path for path in ignore_folders):
             if item_dst.exists():
                 shutil.rmtree(item_dst)
             item_dst.mkdir()
