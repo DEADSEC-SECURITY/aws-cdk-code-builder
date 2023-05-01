@@ -28,7 +28,7 @@ setup(
     author_email='amng835@gmail.com',
     url='https://github.com/DEADSEC-SECURITY/aws-cdk-code-builder',
     install_requires=[
-        'aws-cdk-lib==2.*.*',
+        'aws-cdk-lib>=2.50.0',
     ],
     keywords=[
         'aws_cdk',
