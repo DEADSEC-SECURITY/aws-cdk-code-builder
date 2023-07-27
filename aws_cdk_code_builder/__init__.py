@@ -63,7 +63,10 @@ class Build:
         if not self.project_path.is_dir():
             raise ValueError('Project path needs to be a directory')
 
+        # Use function folder and parent folder names to avoid same function folder name colisions
         project_name = self.project_path.parts[-1]
+        if base_path := self.project_path.parts[-2]:
+            project_name = f"{base_path}-{project_name}"
 
         self._build_dir = self.work_dir.joinpath('.build')
         self._project_build_dir = self._build_dir.joinpath(project_name)
