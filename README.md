@@ -1,4 +1,6 @@
-# AWS CDK Code Builder ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/DEADSEC-SECURITY/aws-cdk-code-builder?label=Version&style=flat-square) ![Python_Version](https://img.shields.io/badge/Python-3.7%2B-blue?style=flat-square) ![GitHub](https://img.shields.io/github/license/DEADSEC-SECURITY/aws-cdk-code-builder?label=Licence&style=flat-square) ![PyPI - Downloads](https://img.shields.io/pypi/dd/aws-cdk-code-builder?label=Daily%20Downloads&style=flat-square) ![PyPI - Downloads](https://img.shields.io/pypi/dm/aws-cdk-code-builder?label=Monthly%20Downloads&style=flat-square)
+# AWS CDK Code Builder ![GitHub tag (latest SemVer)](https://img.shields.io/github/v/tag/DEADSEC-SECURITY/aws-cdk-code-builder?label=Version&style=flat-square) ![Python_Version](https://img.shields.io/badge/Python-3.7%2B-blue?style=flat-square) ![GitHub](https://img.shields.io/github/license/DEADSEC-SECURITY/aws-cdk-code-builder?label=Licence&style=flat-square) 
+
+![PyPI - Downloads](https://img.shields.io/pypi/dd/aws-cdk-code-builder?label=Daily%20Downloads&style=flat-square) ![PyPI - Downloads](https://img.shields.io/pypi/dm/aws-cdk-code-builder?label=Weekly%20Downloads&style=flat-square) ![PyPI - Downloads](https://img.shields.io/pypi/dm/aws-cdk-code-builder?label=Monthly%20Downloads&style=flat-square)
 
 This library work very similarly to how AWS ``sam build`` works. It will find the requirements.txt file and install all libraries and package them together with your code to then ship to a lambda function.
 
